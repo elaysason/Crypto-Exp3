@@ -123,7 +123,6 @@ if __name__ == '__main__':
     days = range(100, 2300, 150)
     output = exp3_base("2013-04-29",T)
     end = str(get_date('2013-04-29',T))
-    print('The reward from the whole period from 2013-04-29 to ' + end_date +'is' + str(output[1]))
     regrets = [exp3_base("2015-01-01", t)[0] for t in days]
     print(regrets)
     x = range(100, 2300, 150)
