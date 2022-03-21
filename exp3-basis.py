@@ -103,7 +103,7 @@ def exp3_base(date, days):
         best_sum += max([reward(s, t) for s in existing_coins])
         existing_coins = get_existing_coins(start_date, t)
 
-    return best_sum - reward_sum
+    return best_sum - reward_sum,reward_sum
 
 
 if __name__ == '__main__':
@@ -121,8 +121,10 @@ if __name__ == '__main__':
     ## plt.show()
 
     days = range(100, 2300, 150)
-
-    regrets = [exp3_base("2015-01-01", t) for t in days]
+    output = exp3_base("2013-04-29",T)
+    end = str(get_date('2013-04-29',T))
+    print('The reward from the whole period from 2013-04-29 to ' + end_date +'is' + str(output[1]))
+    regrets = [exp3_base("2015-01-01", t)[0] for t in days]
     print(regrets)
     x = range(100, 2300, 150)
     plt.title('Regret As a Function of Number of Days')
