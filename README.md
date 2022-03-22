@@ -8,7 +8,7 @@ About Using exp3 and its variations of it to select coins to invest in.
 ## General
 The goal is to use exp3 and variations of it in order to select the the coins will gain to most rewards and the least regret over a cretian timeframe.
 ### Background
-Exp3 is a simple algorithm used for adversarial bandits.Adversarial bandits stands for a "game" which the player have to choose one action which its reward is samled for a certian distirbution. 
+Exp3 is a simple algorithm used for adversarial bandits.Adversarial bandits stands for a "game" which the player have to choose one action which its reward is sampled for a certian distirbution. 
 
 ## Program Structure
 The
