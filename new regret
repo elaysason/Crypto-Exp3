@@ -10,3 +10,14 @@ def get_best_coin_sum(start_date, days):
             best_sum = reward_sum
 
     return best_coin, best_sum
+
+
+
+
+
+
+rewards_extended = [exp3_extension1(start_date, i) for i in amount_days]
+best_coin_rewards = [get_best_coin_sum(start_date, i) for i in amount_days]
+best_coin = best_coin_rewards[-1][0]
+best_rewards = [r[1] for r in best_coin_rewards]
+regrets_extended = [best_rewards[i] - rewards_extended[i] for i in amount_days]
