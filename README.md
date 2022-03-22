@@ -5,3 +5,7 @@ About Using exp3 and its variations of it to select coins to invest in.
 3. [Installation](#Installation)
 4. [Footnote](#footnote)
 ## General
+The goal is to use exp3 and variations of it in order to select the the coins will gain to most rewards and the least regret over a cretian timeframe.
+
+## Program Structure
+The
