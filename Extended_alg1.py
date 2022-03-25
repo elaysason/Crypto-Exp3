@@ -9,7 +9,8 @@ coins_list = ["Aave", "BinanceCoin", "Bitcoin", "Cardano", "ChainLink", "Cosmos"
               "Ethereum", "Iota", "Litecoin", "Monero", "NEM", "Polkadot", "Solana", "Stellar", "Tether",
               "Tron", "Uniswap", "USDCoin", "WrappedBitcoin", "XRP"]
 K = 23
-
+T = 2991
+#every_day_best_rewards = [0]*T
 end_date = datetime.datetime.strptime("2021-07-06", "%Y-%m-%d")
 crypto_datasets = dict()
 
@@ -62,7 +63,6 @@ def exp3_extension1(start_date, days):
     epsilon[0] = 1 / (len(get_existing_coins(start_date, 0)))
     rho = dict()
     rewards = []
-    best_rewards = []
     existing_coins = get_existing_coins(start_date, 0)
     for t in range(1, days):
         epsilon.append(min([epsilon[0], math.sqrt(np.log(len(existing_coins)) / (len(existing_coins) * t))]))
@@ -74,26 +74,88 @@ def exp3_extension1(start_date, days):
             rho[coin] += epsilon[t]
         coins_values = [(coin, rho[coin]) for coin in existing_coins]
         chosen_coin = choose_coin(coins_values)
-        reward = payoff(chosen_coin, start_date, t)  # pd.to_numeric(on_date["Close"].values - on_date["Open"].values)
+        reward = payoff(chosen_coin, start_date, t)
         reward_sum[chosen_coin] += reward / rho[chosen_coin]
         rewards.append(reward)
-        best_rewards.append(max(payoff(coin, start_date, t) for coin in existing_coins))
         existing_coins = get_existing_coins(start_date, t)
-    return sum(best_rewards) - sum(rewards)
+    return sum(rewards)
+
+
+def exp3_extension2(start_date, days, conf_param, best_coin):
+    epsilon = [1 / K]
+    reward_sum = defaultdict(int)
+    epsilon[0] = 1 / K
+    rho = dict()
+    rewards = []
+    A = list(crypto_datasets.keys())
+    B = 4*(math.exp(1)-2)*(2*math.log(K)+math.log(2/conf_param))
+    V = defaultdict(lambda: 1/K)
+    for t in range(1, days):
+        epsilon.append(min([epsilon[0], math.sqrt(np.log(K) / (K*t))]))
+        for coin in A:
+            rho[coin] = (1-len(A)*epsilon[t])
+            rho[coin] *= math.exp(epsilon[t-1]*reward_sum[coin]) / sum(math.exp(epsilon[t-1]*reward_sum[c]) for c in A)
+            rho[coin] += epsilon[t]
+            V[coin] += 1/rho[coin]
+        coins_values = [(coin, rho[coin]) for coin in A]
+        chosen_coin = choose_coin(coins_values)
+        reward = payoff(chosen_coin, start_date, t)
+        reward_sum[chosen_coin] += reward / rho[chosen_coin]
+        rewards.append(reward)
+        to_remove = []
+        for c in A:
+            if every_day_best_rewards[t] - reward_sum[c] > math.sqrt(B*(V[best_coin]-V[c])):
+                to_remove.append(c)
+        for c in to_remove:
+            A.remove(c)
+
+
+    return sum(rewards)
+
+def get_best_coin_sum(start_date, days):
+    best_sum = -float("inf")
+    best_coin = list(crypto_datasets.keys())[0]
+    for coin in crypto_datasets.keys():
+        reward_sum = 0
+        for t in range(days):
+            reward_sum += payoff(coin, start_date, t)
+        if reward_sum >= best_sum:
+            best_coin = coin
+            best_sum = reward_sum
+
+    return best_coin, best_sum
+
 
 def main():
-    create_crypto_dict()
-    amount_days = range(100, 2000, 50)
-    start_date = datetime.datetime.strptime("2013-04-29", "%Y-%m-%d")
-    regrets = [exp3_extension1(start_date, i) for i in amount_days]
-    print(regrets)
-    x = range(100, 2000, 50)
-    plt.title('Regret As a Function of Number of Days')
-    plt.plot(x, regrets)
+    start_date = datetime.datetime.strptime("2015-01-01", "%Y-%m-%d")
+    amount_days = range(600, 2000, 50)
+    #rewards_extended = [exp3_extension1(start_date, i) for i in amount_days]
+    best_coin_rewards = [get_best_coin_sum(start_date, i) for i in amount_days]
+    best_coin = best_coin_rewards[-1][0]
+    best_rewards = [r[1] for r in best_coin_rewards]
+    #regrets_extended = [best_rewards[i] - rewards_extended[i] for i in amount_days]
+    x = range(600, 2000, 50)
+    """plt.title('Regret As a Function of Number of Days')
+    plt.plot(x, regrets_extended, color="r", label="extended")
     plt.xlabel('Number Of Days')
     plt.ylabel('Regret')
-    plt.show()
+    plt.show()"""
+
+
+
+    params = [0.1, 0.3, 0.5, 0.7]
+    for conf_param in params:
+        rewards_extension2 = [exp3_extension2(start_date, i, conf_param, best_coin) for i in amount_days]
+        regrets_extended = [best_rewards[i] - rewards_extension2[i] for i in amount_days]
+        plt.title(f'Regret As a Function of Number of Days, with conf_param: {conf_param}')
+        plt.plot(x, regrets_extended, color="r", label="extended")
+        plt.xlabel('Number Of Days')
+        plt.ylabel('Regret')
+        plt.show()
 
 
 if __name__ == '__main__':
+    start_date = datetime.datetime.strptime("2015-01-01", "%Y-%m-%d")
+    create_crypto_dict()
+    every_day_best_rewards = [get_best_coin_sum(start_date, i) for i in range(T)]
     main()
