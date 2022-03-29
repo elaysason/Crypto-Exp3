@@ -81,7 +81,7 @@ def exp3_extension1(start_date, days):
     return sum(rewards)
 
 
-def exp3_extension2(start_date, days, conf_param, best_coin):
+def exp3_extension2(start_date, days, conf_param):
     epsilon = [1 / K]
     reward_sum = defaultdict(int)
     epsilon[0] = 1 / K
@@ -103,13 +103,12 @@ def exp3_extension2(start_date, days, conf_param, best_coin):
         reward_sum[chosen_coin] += reward / rho[chosen_coin]
         rewards.append(reward)
         to_remove = []
+        best_coin = max(reward_sum, key= reward_sum.get)
         for c in A:
-            if every_day_best_rewards[t] - reward_sum[c] > math.sqrt(B*(V[best_coin]-V[c])):
+            if reward_sum[best_coin] - reward_sum[c] > math.sqrt(B*(V[best_coin] + V[c])):
                 to_remove.append(c)
-        for c in to_remove:
-            A.remove(c)
-
-
+        
+        A = list(set(A) - set(to_remove))
     return sum(rewards)
 
 def get_best_coin_sum(start_date, days):
@@ -145,7 +144,7 @@ def main():
 
     params = [0.1, 0.3, 0.5, 0.7]
     for conf_param in params:
-        rewards_extension2 = [exp3_extension2(start_date, i, conf_param, best_coin) for i in amount_days]
+        rewards_extension2 = [exp3_extension2(start_date, i, conf_param) for i in amount_days]
         regrets_extended = [best_rewards[i] - rewards_extension2[i] for i in amount_days]
         plt.title(f'Regret As a Function of Number of Days, with conf_param: {conf_param}')
         plt.plot(x, regrets_extended, color="r", label="extended")
