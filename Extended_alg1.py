@@ -87,11 +87,12 @@ def exp3_extension2(start_date, days, conf_param):
     epsilon[0] = 1 / K
     rho = dict()
     rewards = []
-    A = list(crypto_datasets.keys())
+    to_remove = set()  #every coin that once was removed
+    A = get_existing_coins(start_date, 1)
     B = 4*(math.exp(1)-2)*(2*math.log(K)+math.log(2/conf_param))
-    V = defaultdict(lambda: 1/K)
+    V = defaultdict(lambda: 0)  #1/K
     for t in range(1, days):
-        epsilon.append(min([epsilon[0], math.sqrt(np.log(K) / (K*t))]))
+        epsilon.append(min([epsilon[0], math.sqrt(np.log(len(A)) / (len(A) * t))]))
         for coin in A:
             rho[coin] = (1-len(A)*epsilon[t])
             rho[coin] *= math.exp(epsilon[t-1]*reward_sum[coin]) / sum(math.exp(epsilon[t-1]*reward_sum[c]) for c in A)
@@ -99,16 +100,18 @@ def exp3_extension2(start_date, days, conf_param):
             V[coin] += 1/rho[coin]
         coins_values = [(coin, rho[coin]) for coin in A]
         chosen_coin = choose_coin(coins_values)
-        reward = payoff(chosen_coin, start_date, t)
+        reward = payoff(chosen_coin, start_date, t) * rho[chosen_coin]
         reward_sum[chosen_coin] += reward / rho[chosen_coin]
         rewards.append(reward)
-        to_remove = []
-        best_coin = max(reward_sum, key= reward_sum.get)
+        best_coin = max(reward_sum, key=reward_sum.get)
         for c in A:
             if reward_sum[best_coin] - reward_sum[c] > math.sqrt(B*(V[best_coin] + V[c])):
-                to_remove.append(c)
-        
-        A = list(set(A) - set(to_remove))
+                to_remove.add(c)
+                reward_sum.pop(c)
+                rho.pop(c)
+        if len(A) < K:
+            A = get_existing_coins(start_date, t+1)  # adding new coins if we need
+        A = list(set(A) - set(to_remove))  #making sure that none of the coins that were removed remain in A
     return sum(rewards)
 
 def get_best_coin_sum(start_date, days):
