@@ -23,7 +23,7 @@ Afterwards we compared to regret defined as
 
 <img src="https://i.imgur.com/CqrqpJI.png" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width=20% height=20% /> to the bound 2 √(2nKlog(K)) which is proven in the paper. The second part was a comparission between the regrets of the diffrent algorithms.
 ## Installation
-I will use google as an example, but similar process can be performed on other notebook editors
+I will use Google Colab as an example, but similar process can be performed on other notebook editors
 1. Open google Colab
 2. Clone the project by:
 	```
