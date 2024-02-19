@@ -27,7 +27,7 @@ I will use Google Colab as an example, but similar process can be performed on o
 1. Open google Colab
 2. Clone the project by:
 	```
-	!git clone https://github.com/elaysason/ANALYSIS-SP500.git
+	!git clone https://github.com/elaysason/Crypto-Exp3.git
 	```
     <img src="https://i.imgur.com/IYmNxac.png" data-canonical-src="https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png" width=40% height=40% />
 3. Now the folder is in your files on colab. Simpily download the notebook as showed
